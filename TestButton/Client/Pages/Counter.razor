@@ -1,0 +1,42 @@
+﻿@page "/counter"
+@using TestButton.Shared;
+@inject HttpClient Http;
+
+<h3>Forecasts</h3>
+
+<Grid @ref="Grid" TItem="WeatherForecast" Class="table table-striped mt-4" DataProvider="ForecastDataProvider" PaginationAlignment="Alignment.End" AllowFiltering="true" AllowPaging="true" PageSize="15" AllowSorting="true" Responsive="true">
+    <GridColumn TItem="WeatherForecast" HeaderText="Date" Filterable="false" Sortable="false">
+        @context.Date
+    </GridColumn>
+
+    <GridColumn TItem="WeatherForecast" HeaderText="Summary" Filterable="false" Sortable="false">
+        @context.Summary
+    </GridColumn>
+
+    <GridColumn TItem="WeatherForecast" HeaderText="Temperature C" Filterable="false" Sortable="false" TextAlignment="Alignment.Center" HeaderTextAlignment="Alignment.Center">
+        @context.TemperatureC
+    </GridColumn>
+
+    <GridColumn TItem="WeatherForecast" HeaderText="Action" Filterable="false" Sortable="false" TextAlignment="Alignment.Center" HeaderTextAlignment="Alignment.Center">
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Class="btn-sm" @onclick="() => ChangeTemperature(context)">+</Button>
+    </GridColumn>
+</Grid>
+
+
+@code{
+    private List<WeatherForecast>? Forecasts { get; set; }
+
+    private Grid<WeatherForecast>? Grid { get; set; }
+
+    private async Task<GridDataProviderResult<WeatherForecast>> ForecastDataProvider(GridDataProviderRequest<WeatherForecast> request)
+    {
+        Forecasts = await Http.GetFromJsonAsync<List<WeatherForecast>>("WeatherForecast");
+
+        return await Task.FromResult(new GridDataProviderResult<WeatherForecast> { Data = Forecasts!, TotalCount = Forecasts!.Count });
+    }
+
+    private void ChangeTemperature(WeatherForecast forecast)
+    {
+        forecast.TemperatureC += 1;
+    }
+}
